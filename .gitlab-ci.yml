@@ -25,6 +25,8 @@ build client:
   artifacts:
     paths:
       - client/build/*
+    # expire fast given that the release job will cache them
+    expire_in: 1 day
 
 cross build client amd64:
   <<: *cross_build_client
