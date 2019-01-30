@@ -4,7 +4,7 @@ stages:
   - build
   - release
 
-build_client:
+build client:
   stage: build
   script:
     - cd client
@@ -12,8 +12,8 @@ build_client:
   only:
     - branches
 
-.release_client: &release_client
-  stage: release
+.cross_build_client: &cross_build_client
+  stage: build
   script:
     - cd client
     - go get github.com/mitchellh/gox
@@ -26,17 +26,28 @@ build_client:
     paths:
       - client/build/*
 
-release_client_amd64:
-  <<: *release_client
+cross build client amd64:
+  <<: *cross_build_client
   before_script:
     - export BUILD_ARCH=amd64
 
-release_client_386:
-  <<: *release_client
+cross build client 386:
+  <<: *cross_build_client
   before_script:
     - export BUILD_ARCH=386
 
-release_client_arm:
-  <<: *release_client
+cross build client arm:
+  <<: *cross_build_client
   before_script:
     - export BUILD_ARCH=arm
+
+release client:
+  stage: release
+  script:
+    - ls client/build/
+  artifacts:
+    paths:
+      - client/build/*
+  only:
+    - tags
+    - /^client\/.*$/
