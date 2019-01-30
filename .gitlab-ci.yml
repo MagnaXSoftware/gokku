@@ -2,6 +2,7 @@ image: golang:1.11
 
 stages:
   - build
+  - release
 
 build_client:
   stage: build
