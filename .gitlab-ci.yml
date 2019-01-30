@@ -1,0 +1,26 @@
+image: golang:1.11
+
+stages:
+  - build
+
+build_client:
+  stage: build
+  script:
+    - cd client
+    - go build -o gokku .
+  only:
+    - branches
+
+release_client:
+  stage: release
+  script:
+    - cd client
+    - go get github.com/mitchellh/gox
+    - gox -output="build/gokku-{{.OS}}-{{.Arch}}" .
+  only:
+    refs:
+      - tags
+      - /^client\/.*$/
+  artifacts:
+    paths:
+      - build/*
