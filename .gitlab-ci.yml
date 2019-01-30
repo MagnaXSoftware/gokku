@@ -12,16 +12,31 @@ build_client:
   only:
     - branches
 
-release_client:
+.release_client: &release_client
   stage: release
   script:
     - cd client
     - go get github.com/mitchellh/gox
-    - gox -output="build/gokku-{{.OS}}-{{.Arch}}" .
+    - gox -arch="${BUILD_ARCH}" -output="build/gokku-{{.OS}}-{{.Arch}}" .
   only:
     refs:
       - tags
       - /^client\/.*$/
   artifacts:
     paths:
-      - build/*
+      - client/build/*
+
+release_client_amd64:
+  <<: *release_client
+  before_script:
+    - export BUILD_ARCH=amd64
+
+release_client_386:
+  <<: *release_client
+  before_script:
+    - export BUILD_ARCH=386
+
+release_client_arm:
+  <<: *release_client
+  before_script:
+    - export BUILD_ARCH=arm
