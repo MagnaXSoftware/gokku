@@ -9,8 +9,17 @@ build client:
   script:
     - cd client
     - go build -o gokku .
+  artifacts:
+    paths:
+      - client/gokku
+    expire_in: 7 day
   only:
-    - branches
+    refs:
+      - branches
+    changes:
+      - .gitlab-ci.yml
+      - client/**/*
+
 
 .cross_build_client: &cross_build_client
   stage: build
