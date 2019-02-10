@@ -5,11 +5,11 @@ import (
 	"os"
 )
 
-// Config represents the configuration of the gokku CLI client.
+// GokkuConfig represents the configuration of the gokku CLI client.
 //
 // The type gets marshalled as the "Gokku" key of an anonymous struct
 // for the yaml .gokku.yml file.
-type Config struct {
+type GokkuConfig struct {
 	Username    string
 	Hostname    string
 	Port        int
@@ -17,7 +17,7 @@ type Config struct {
 	IgnoreAgent bool   `yaml:"ignore-agent,omitempty"`
 }
 
-var GokkuConfig Config
+var Config GokkuConfig
 
 var configFile = "./.gokku.yml"
 

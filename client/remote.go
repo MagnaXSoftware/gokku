@@ -24,14 +24,14 @@ var remoteCmd = func() *remoteCommand {
 func (cmd *remoteCommand) Execute(args []string) int {
 	args = findConfigFile(args)
 	data, err := ioutil.ReadFile(configFile)
-	check(err, "config: unable to open .gokku.yml file: %v\n", 4)
+	check(err, "config: unable to open .gokku.yml file: %v\n", 1)
 
-	anon := struct{ Gokku *Config }{&GokkuConfig}
+	anon := struct{ Gokku *GokkuConfig }{&Config}
 	err = yaml.Unmarshal(data, &anon)
-	check(err, "config: unable to import configuration data: %v\n", 4)
+	check(err, "config: unable to import configuration data: %v\n", 1)
 
-	if GokkuConfig.Port == 0 {
-		GokkuConfig.Port = 22
+	if Config.Port == 0 {
+		Config.Port = 22
 	}
 
 	return embeddedSSH(args)
@@ -75,23 +75,23 @@ func findConfigFile(args []string) []string {
 }
 
 func readKey() ssh.Signer {
-	key, err := ioutil.ReadFile(GokkuConfig.KeyFile)
-	check(err, "remote: unable to read private key: %v\n", 4)
+	key, err := ioutil.ReadFile(Config.KeyFile)
+	check(err, "remote: unable to read private key: %v\n", 1)
 
 	signer, err := ssh.ParsePrivateKey(key)
-	check(err, "remote: unable to parse private key: %v\n", 4)
+	check(err, "remote: unable to parse private key: %v\n", 1)
 	return signer
 }
 
 func buildAuthMethods() []ssh.AuthMethod {
 	var methods []ssh.AuthMethod
 
-	if GokkuConfig.KeyFile != "" {
+	if Config.KeyFile != "" {
 		methods = append(methods, ssh.PublicKeys(readKey()))
 	}
 
 	socket := os.Getenv("SSH_AUTH_SOCK")
-	if !GokkuConfig.IgnoreAgent && socket != "" {
+	if !Config.IgnoreAgent && socket != "" {
 		conn, err := net.Dial("unix", socket)
 		if err != nil {
 			//noinspection GoUnhandledErrorResult
@@ -107,16 +107,16 @@ func buildAuthMethods() []ssh.AuthMethod {
 
 func embeddedSSH(args []string) int {
 	config := &ssh.ClientConfig{
-		User:            GokkuConfig.Username,
+		User:            Config.Username,
 		Auth:            buildAuthMethods(),
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	client, err := ssh.Dial("tcp", GokkuConfig.Hostname+":"+strconv.Itoa(GokkuConfig.Port), config)
-	check(err, "remote: unable to connect to remote host: %v\n", 5)
+	client, err := ssh.Dial("tcp", Config.Hostname+":"+strconv.Itoa(Config.Port), config)
+	check(err, "remote: unable to connect to remote host: %v\n", 1)
 
 	session, err := client.NewSession()
-	check(err, "remote: unable to open new session: %v\n", 5)
+	check(err, "remote: unable to open new session: %v\n", 1)
 	//noinspection GoUnhandledErrorResult
 	defer session.Close()
 
@@ -124,7 +124,10 @@ func embeddedSSH(args []string) int {
 	session.Stderr = os.Stderr
 
 	err = session.Run(strings.Join(args, " "))
-	check(err, "remote: unable to execute given command: %v\n", 5)
+	if eerr, ok := err.(*ssh.ExitError); ok {
+		return eerr.ExitStatus()
+	}
+	check(err, "remote: unable to execute given command: %v\n", 1)
 
 	return 0
 }

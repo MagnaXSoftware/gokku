@@ -18,10 +18,10 @@ var initCmd = func() *initCommand{
 
 	cmd.FlagSet = flag.NewFlagSet("init", flag.ExitOnError)
 	cmd.FlagSet.SetOutput(os.Stderr)
-	cmd.FlagSet.StringVarP(&GokkuConfig.Username, "user", "u", "gokku", "Username used for the remote ssh connection, often gokku or dokku.")
-	cmd.FlagSet.StringVarP(&GokkuConfig.Hostname, "hostname", "h", "", "The hostname of the gokku/dokku server.")
-	cmd.FlagSet.IntVarP(&GokkuConfig.Port, "port", "p", 22, "The port on which the gokku/dokku binary can be reached (over ssh).")
-	cmd.FlagSet.StringVarP(&GokkuConfig.KeyFile, "key", "k", "", "The path to the ssh key to use for the connection.")
+	cmd.FlagSet.StringVarP(&Config.Username, "user", "u", "gokku", "Username used for the remote ssh connection, often gokku or dokku.")
+	cmd.FlagSet.StringVarP(&Config.Hostname, "hostname", "h", "", "The hostname of the gokku/dokku server.")
+	cmd.FlagSet.IntVarP(&Config.Port, "port", "p", 22, "The port on which the gokku/dokku binary can be reached (over ssh).")
+	cmd.FlagSet.StringVarP(&Config.KeyFile, "key", "k", "", "The path to the ssh key to use for the connection.")
 	cmd.FlagSet.StringVarP(&configFile, "file", "f", ".gokku.yml", "The file that contains the configuration.")
 	err := cmd.FlagSet.MarkHidden("file")
 	if err != nil {
@@ -38,14 +38,14 @@ func (cmd *initCommand) Execute(args []string) int {
 	//noinspection GoUnhandledErrorResult
 	cmd.FlagSet.Parse(args)
 
-	if GokkuConfig.Hostname == "" {
+	if Config.Hostname == "" {
 		//noinspection GoUnhandledErrorResult
 		fmt.Fprintln(os.Stderr, "A hostname is required.")
 		cmd.FlagSet.PrintDefaults()
 		os.Exit(3)
 	}
 
-	data, err := yaml.Marshal(struct{ Gokku *Config }{&GokkuConfig})
+	data, err := yaml.Marshal(struct{ Gokku *GokkuConfig }{&Config})
 	check(err, "Could not export configuration file: %v.\n", 3)
 	err = ioutil.WriteFile(configFile, data, 0664)
 	check(err, "Could not write configuration file: %v.\n", 3)
