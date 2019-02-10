@@ -7,11 +7,12 @@ stages:
 build client:
   stage: build
   script:
+    - mkdir build
     - cd client
-    - go build -o gokku .
+    - go build -o ../build/gokku .
   artifacts:
     paths:
-      - client/gokku
+      - build/gokku
     expire_in: 7 day
   only:
     refs:
@@ -67,11 +68,12 @@ release client:
 build server:
   stage: build
   script:
+    - mkdir build
     - cd server
-    - go build -o gokku .
+    - go build -o ../build/gokku-server .
   artifacts:
     paths:
-      - server/gokku
+      - build/gokku-server
     expire_in: 7 day
   only:
     refs:
