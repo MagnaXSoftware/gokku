@@ -6,6 +6,9 @@ import (
 )
 
 // Config represents the configuration of the gokku CLI client.
+//
+// The type gets marshalled as the "Gokku" key of an anonymous struct
+// for the yaml .gokku.yml file.
 type Config struct {
 	Username    string
 	Hostname    string
@@ -14,18 +17,15 @@ type Config struct {
 	IgnoreAgent bool   `yaml:"ignore-agent,omitempty"`
 }
 
-var (
-	gokkuConfig Config
+var GokkuConfig Config
 
-	configFile = ".gokku.yml"
-)
+var configFile = "./.gokku.yml"
 
-func check(err error, msg string, code int) {
-	if err != nil {
-		//noinspection GoUnhandledErrorResult
-		fmt.Fprintf(os.Stderr, msg, err)
-		os.Exit(code)
-	}
+const configFileName = ".gokku.yml"
+
+// Command represents a Gokku CLI command.
+type Command interface {
+	Execute([]string) int
 }
 
 func main() {
@@ -40,17 +40,18 @@ func main() {
 	var ret int
 
 	if args[0] == "init" {
-		ret = runInit(args[1:])
+		ret = initCmd.Execute(args[1:])
 	} else {
-		if (args[0] == "-f" || args[0] == "--file") && len(args) > 2 {
-			configFile = args[1]
-			args = args[2:]
-		}
-		if args[0] == "--" {
-			args = args[1:]
-		}
-		ret = runRemote(args)
+		ret = remoteCmd.Execute(args)
 	}
 
 	os.Exit(ret)
+}
+
+func check(err error, msg string, code int) {
+	if err != nil {
+		//noinspection GoUnhandledErrorResult
+		fmt.Fprintf(os.Stderr, msg, err)
+		os.Exit(code)
+	}
 }
