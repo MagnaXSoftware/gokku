@@ -62,3 +62,20 @@ release client:
     refs:
       - tags
       - /^client\/.*$/
+
+
+build server:
+  stage: build
+  script:
+    - cd server
+    - go build -o gokku .
+  artifacts:
+    paths:
+      - server/gokku
+    expire_in: 7 day
+  only:
+    refs:
+      - branches
+    changes:
+      - .gitlab-ci.yml
+      - server/**/*
