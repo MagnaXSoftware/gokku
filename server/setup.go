@@ -47,10 +47,10 @@ func loadConfig() {
 		fmt.Printf("config: could not load config file: %v\n", err)
 		os.Exit(1)
 	}
-	newCfg, err := gokku.Config.UpdateFromMarshaled(data)
+	newCfg, err := gokku.CurrentConfig.UpdateFromMarshaled(data)
 	if err != nil {
 		fmt.Printf("config: could not parse config file: %v\n", err)
 		os.Exit(1)
 	}
-	gokku.Config = newCfg
+	gokku.CurrentConfig = newCfg
 }

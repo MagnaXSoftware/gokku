@@ -5,52 +5,52 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// GokkuConfig represents the configuration of Gokku.
-type GokkuConfig struct {
+// Config represents the configuration of Gokku.
+type Config struct {
 	AppDirectory string
 }
 
-// Config is the current running configuration.
-var Config = NewDefaultGokkuConfig()
+// CurrentConfig is the current running configuration.
+var CurrentConfig = NewDefaultGokkuConfig()
 
-func NewDefaultGokkuConfig() GokkuConfig {
-	return GokkuConfig{
+func NewDefaultGokkuConfig() Config {
+	return Config{
 		AppDirectory: "/var/lib/gokku",
 	}
 }
 
-func NewGokkuConfig() GokkuConfig {
-	return GokkuConfig{}
+func NewConfig() Config {
+	return Config{}
 }
 
-func MarshalNewGokkuConfig(data []byte) (GokkuConfig, error) {
-	cfg := NewGokkuConfig()
+func UnmarshalNewConfig(data []byte) (Config, error) {
+	cfg := NewConfig()
 	anon := struct {
-		Gokku *GokkuConfig
+		Gokku *Config
 	}{&cfg}
 	err := yaml.Unmarshal(data, &anon)
 	if err != nil {
-		return GokkuConfig{}, err
+		return Config{}, err
 	}
 	return cfg, nil
 }
 
-// UpdateFromMarshaled returns a copy of the GokkuConfig, updating values as per the given marshaled data.
-func (c *GokkuConfig) UpdateFromMarshaled(data []byte) (GokkuConfig, error) {
+// UpdateFromMarshaled returns a copy of the Config, updating values as per the given marshaled data.
+func (c *Config) UpdateFromMarshaled(data []byte) (Config, error) {
 	cfg := *c
 	anon := struct {
-		Gokku *GokkuConfig
+		Gokku *Config
 	}{&cfg}
 	err := yaml.Unmarshal(data, &anon)
 	if err != nil {
-		return GokkuConfig{}, err
+		return Config{}, err
 	}
 	return cfg, nil
 }
 
-func (c *GokkuConfig) Marshal() []byte {
+func (c *Config) Marshal() []byte {
 	anon := struct {
-		Gokku *GokkuConfig
+		Gokku *Config
 	}{c}
 	data, err := yaml.Marshal(anon)
 	if err != nil {
