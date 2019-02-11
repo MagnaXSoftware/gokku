@@ -4,13 +4,10 @@ import (
 	"magnax.ca/gokku/server/cmd"
 )
 
-var (
-	configDirectory = "/etc/gokku"
-	configFile      = "gokku.yaml"
-)
 
 func main() {
 	setupPlugins()
+	loadConfig()
 
 	cmd.Init()
 	cmd.Execute()

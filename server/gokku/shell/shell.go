@@ -1,8 +1,8 @@
 package shell
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 	"magnax.ca/gokku/server/gokku"
 	"os"
 	"strings"
@@ -14,7 +14,7 @@ type shellPlugin struct {
 }
 
 // Plugin represents the shell gokku.Plugin.
-var Plugin = NewAppPlugin()
+var Plugin = NewShellPlugin()
 
 func init() {
 	gokku.AppendPlugin(Plugin)
@@ -28,7 +28,7 @@ func Exec() {
 	_ = Plugin.exec()
 }
 
-func NewAppPlugin() *shellPlugin {
+func NewShellPlugin() *shellPlugin {
 	plugin := new(shellPlugin)
 	plugin.Cmd = &cobra.Command{
 		Use: "shell",
@@ -65,7 +65,7 @@ func (p *shellPlugin) exec() error {
 	// We absorb errors here, otherwise cobra thinks that this command failed, not the wrapped command.
 	err := rootCmd.Execute()
 	if err != nil {
-		log.Printf("shell: %v", err)
+		fmt.Printf("shell: %v\n", err)
 	}
 	return nil
 }
