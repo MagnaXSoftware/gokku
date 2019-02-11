@@ -31,7 +31,7 @@ func Exec(user string) {
 func NewShellPlugin() *shellPlugin {
 	plugin := new(shellPlugin)
 	plugin.Cmd = &cobra.Command{
-		Use: "shell [username]",
+		Use:  "shell [username]",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = plugin.exec(args[0])

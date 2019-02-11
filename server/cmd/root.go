@@ -7,6 +7,7 @@ import (
 	"os"
 
 	// core commands are added here. The plugin semantic, which commands must implement, handles registration.
+	_ "magnax.ca/gokku/server/gokku/app"
 	_ "magnax.ca/gokku/server/gokku/shell"
 )
 

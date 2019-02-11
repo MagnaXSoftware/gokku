@@ -2,6 +2,7 @@ package shell
 
 import (
 	"fmt"
+	"magnax.ca/gokku/server/gokku/app"
 	"os"
 	"path"
 	"strings"
@@ -52,6 +53,20 @@ func RunGitCommand(args []string) error {
 	switch cmd {
 	case "git-upload-pack":
 		writeString(PktLineString("ERR fetching is not supported"))
+		return nil
+	case "git-receive-pack":
+		if len(args) < 2 {
+			writeString(PktLineString("ERR no repository given"))
+			return NewGitError("no repository given")
+		}
+		appName := strings.Split(path.Base(args[1]), ".")[0]
+		currentApp, err := app.LoadApp(appName)
+		if err != nil {
+			writeString(PktLineString(fmt.Sprintf("ERR could not open app: %v", err)))
+			return NewGitError("could not open app: " + err.Error())
+		}
+		writeString(PktLineString("ERR " + currentApp.RepositoryPath()))
+
 		return nil
 	}
 	return NewGitError("unknown git command: " + strings.Join(args, " "))
