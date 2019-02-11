@@ -26,12 +26,11 @@ func (cmd *remoteCommand) Execute(args []string) int {
 	data, err := ioutil.ReadFile(configFile)
 	check(err, "config: unable to open .gokku.yml file: %v\n", 1)
 
-	anon := struct{ Gokku *GokkuConfig }{&Config}
-	err = yaml.Unmarshal(data, &anon)
+	err = yaml.Unmarshal(data, struct{ Gokku *ClientConfig }{&CurrentConfig})
 	check(err, "config: unable to import configuration data: %v\n", 1)
 
-	if Config.Port == 0 {
-		Config.Port = 22
+	if CurrentConfig.Port == 0 {
+		CurrentConfig.Port = 22
 	}
 
 	return embeddedSSH(args)
@@ -75,7 +74,7 @@ func findConfigFile(args []string) []string {
 }
 
 func readKey() ssh.Signer {
-	key, err := ioutil.ReadFile(Config.KeyFile)
+	key, err := ioutil.ReadFile(CurrentConfig.KeyFile)
 	check(err, "remote: unable to read private key: %v\n", 1)
 
 	signer, err := ssh.ParsePrivateKey(key)
@@ -86,12 +85,12 @@ func readKey() ssh.Signer {
 func buildAuthMethods() []ssh.AuthMethod {
 	var methods []ssh.AuthMethod
 
-	if Config.KeyFile != "" {
+	if CurrentConfig.KeyFile != "" {
 		methods = append(methods, ssh.PublicKeys(readKey()))
 	}
 
 	socket := os.Getenv("SSH_AUTH_SOCK")
-	if !Config.IgnoreAgent && socket != "" {
+	if !CurrentConfig.IgnoreAgent && socket != "" {
 		conn, err := net.Dial("unix", socket)
 		if err != nil {
 			//noinspection GoUnhandledErrorResult
@@ -107,12 +106,12 @@ func buildAuthMethods() []ssh.AuthMethod {
 
 func embeddedSSH(args []string) int {
 	config := &ssh.ClientConfig{
-		User:            Config.Username,
+		User:            CurrentConfig.Username,
 		Auth:            buildAuthMethods(),
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	client, err := ssh.Dial("tcp", Config.Hostname+":"+strconv.Itoa(Config.Port), config)
+	client, err := ssh.Dial("tcp", CurrentConfig.Hostname+":"+strconv.Itoa(CurrentConfig.Port), config)
 	check(err, "remote: unable to connect to remote host: %v\n", 1)
 
 	session, err := client.NewSession()
