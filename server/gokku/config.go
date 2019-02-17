@@ -15,7 +15,7 @@ var CurrentConfig = NewDefaultGokkuConfig()
 
 func NewDefaultGokkuConfig() Config {
 	return Config{
-		AppDirectory: "/var/lib/gokku",
+		AppDirectory: "/var/lib/gokku/apps",
 	}
 }
 

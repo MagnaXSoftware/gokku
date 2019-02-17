@@ -8,7 +8,21 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
+	"strings"
 )
+
+func NameIsValid(name string) error {
+	// check valid characters. We first check the whitelist for allowed characters,
+	// then we extract all invalid characters if there are any.
+	validRe := regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	if !validRe.MatchString(name) {
+		invalidRe := regexp.MustCompile("([^a-zA-Z0-9_-]+)")
+		invalidRunes := strings.Join(invalidRe.FindAllString(name, -1), "")
+		return fmt.Errorf("app: given app name contains invalid characters: %s", invalidRunes)
+	}
+	return nil
+}
 
 type App struct {
 	Name string
@@ -96,4 +110,8 @@ func (a *App) ConfigPath() string {
 
 func (a *App) RepositoryPath() string {
 	return path.Join(gokku.CurrentConfig.AppDirectory, a.Name, "repo.git")
+}
+
+func (a *App) Destroy() error {
+	return os.RemoveAll(a.Path())
 }

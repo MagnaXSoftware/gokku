@@ -2,13 +2,10 @@ package app
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"regexp"
-	"strings"
-
 	"github.com/spf13/cobra"
 	"magnax.ca/gokku/server/gokku"
+	"os"
+	"path"
 )
 
 var createCmd = &cobra.Command{
@@ -18,15 +15,7 @@ var createCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		// check valid characters. We first check the whitelist for allowed characters,
-		// then we extract all invalid characters if there are any.
-		validRe := regexp.MustCompile("^[a-zA-Z0-9_-]+$")
-		if !validRe.MatchString(args[0]) {
-			invalidRe := regexp.MustCompile("([^a-zA-Z0-9_-]+)")
-			invalidRunes := strings.Join(invalidRe.FindAllString(args[0], -1), "")
-			return fmt.Errorf("app: create: given app name contains invalid characters: %s", invalidRunes)
-		}
-		return nil
+		return NameIsValid(args[0])
 	},
 	Run: create,
 }
