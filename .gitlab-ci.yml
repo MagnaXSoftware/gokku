@@ -1,8 +1,15 @@
-image: golang:1.14
+image: golang:1.14-buster
 
 stages:
   - build
   - release
+
+before_script:
+  - export DEBIAN_FRONTEND=noninteractive
+  - apt-get update; apt-get install ca-certificates -yqq
+  - wget "http://certs.corp.magnax.ca/root.crt" -O /usr/local/share/ca-certificates/magnax-root.crt
+  - wget "http://certs.corp.magnax.ca/proxy.crt" -O /usr/local/share/ca-certificates/magnax-proxy.crt
+  - update-ca-certificates
 
 build client:
   stage: build
