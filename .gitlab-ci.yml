@@ -1,38 +1,40 @@
-image: golang:1.11
+image: golang:1.14-buster
 
 stages:
   - build
   - release
 
+before_script:
+  - export DEBIAN_FRONTEND=noninteractive
+  - apt-get update; apt-get install ca-certificates -yqq
+  - wget "http://certs.corp.magnax.ca/root.crt" -O /usr/local/share/ca-certificates/magnax-root.crt
+  - wget "http://certs.corp.magnax.ca/proxy.crt" -O /usr/local/share/ca-certificates/magnax-proxy.crt
+  - update-ca-certificates
+
 build client:
   stage: build
   script:
-    - cd client
-    - go build -o gokku .
+    - mkdir build
+    - go build -o build/gokku ./cmd/gokku
   artifacts:
     paths:
-      - client/gokku
+      - build/gokku
     expire_in: 7 day
   only:
     refs:
       - branches
-    changes:
-      - .gitlab-ci.yml
-      - client/**/*
 
 .cross_build_client: &cross_build_client
   stage: build
   script:
-    - cd client
     - go get github.com/mitchellh/gox
-    - gox -arch="${BUILD_ARCH}" -output="build/gokku-{{.OS}}-{{.Arch}}" .
+    - gox -arch="${BUILD_ARCH}" -output="build/gokku-{{.OS}}-{{.Arch}}" ./cmd/gokku
   only:
     refs:
       - tags
-      - /^client\/.*$/
   artifacts:
     paths:
-      - client/build/*
+      - build/*
     # expire fast given that the release job will cache them
     expire_in: 1 day
 
@@ -54,11 +56,10 @@ cross build client arm:
 release client:
   stage: release
   script:
-    - ls client/build/
+    - ls build/
   artifacts:
     paths:
-      - client/build/*
+      - build/*
   only:
     refs:
       - tags
-      - /^client\/.*$/

@@ -1,4 +1,6 @@
-module magnax.ca/gokku/client
+module magnax.ca/gokku
+
+go 1.14
 
 require (
 	github.com/spf13/pflag v1.0.3
